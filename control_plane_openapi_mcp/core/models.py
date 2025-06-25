@@ -39,5 +39,5 @@ class LoadSchemaResult(BaseModel):
     """Result of loading a schema."""
     name: str
     description: str
-    schema: Dict[str, Any]
+    schema_data: Dict[str, Any]
     uri: str

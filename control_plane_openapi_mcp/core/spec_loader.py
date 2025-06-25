@@ -39,11 +39,27 @@ class SpecLoader:
             self._processed_spec = jsonref.loads(
                 jsonref.dumps(self._raw_spec)
             )
+            
+            # Convert any remaining JsonRef objects to plain dict/list
+            self._processed_spec = self._deep_jsonref_to_dict(self._processed_spec)
+            
             logger.info("Successfully processed OpenAPI spec")
             return self._processed_spec
         except Exception as e:
             logger.error(f"Failed to process OpenAPI spec: {e}")
             raise
+    
+    def _deep_jsonref_to_dict(self, obj):
+        """Recursively convert JsonRef objects to plain Python objects."""
+        if isinstance(obj, jsonref.JsonRef):
+            # Force resolution and convert to dict
+            return self._deep_jsonref_to_dict(dict(obj))
+        elif isinstance(obj, dict):
+            return {k: self._deep_jsonref_to_dict(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._deep_jsonref_to_dict(item) for item in obj]
+        else:
+            return obj
     
     def get_processed_spec(self) -> Dict[str, Any]:
         """Get the processed specification."""

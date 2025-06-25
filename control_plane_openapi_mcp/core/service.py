@@ -173,6 +173,6 @@ class OpenAPIService:
         return LoadSchemaResult(
             name=schema_name,
             description=schema_data.get('description', ''),
-            schema=schema_data,
+            schema_data=schema_data,
             uri=f"apis://{self.spec_id}/schemas/{schema_name}"
         )

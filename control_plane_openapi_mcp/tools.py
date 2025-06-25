@@ -69,8 +69,22 @@ def search_api_operations(query: str) -> str:
     """
     try:
         operations = openapi_service.search_operations(query)
+        # Simplified serialization to avoid JsonRef issues
+        serialized_operations = []
+        for op in operations:
+            serialized_operations.append({
+                "path": op.path,
+                "method": op.method,
+                "spec_id": op.spec_id,
+                "uri": op.uri,
+                "operation_summary": op.operation.get('summary', ''),
+                "operation_description": op.operation.get('description', ''),
+                "operation_id": op.operation.get('operationId', ''),
+                "tags": op.operation.get('tags', [])
+            })
+        
         return json.dumps({
-            "operations": [op.model_dump() for op in operations]
+            "operations": serialized_operations
         }, indent=2)
     except Exception as e:
         logger.error(f"Failed to search API operations: {e}")
@@ -118,7 +132,25 @@ def load_api_operation_by_operationId(operation_id: str) -> str:
     try:
         operation = openapi_service.find_operation_by_id(operation_id)
         if operation:
-            return json.dumps(operation.model_dump(), indent=2)
+            # Create a safe serializable version
+            safe_operation = {
+                "path": operation.path,
+                "method": operation.method,
+                "spec_id": operation.spec_id,
+                "uri": operation.uri,
+                "operation": {
+                    "operationId": operation.operation.get('operationId', ''),
+                    "summary": operation.operation.get('summary', ''),
+                    "description": operation.operation.get('description', ''),
+                    "tags": operation.operation.get('tags', []),
+                    "parameters": operation.operation.get('parameters', []),
+                    "responses": {k: {"description": v.get('description', '')} if isinstance(v, dict) else str(v) 
+                                for k, v in operation.operation.get('responses', {}).items()},
+                    "requestBody": {"description": operation.operation.get('requestBody', {}).get('description', '')} 
+                                  if operation.operation.get('requestBody') else None
+                }
+            }
+            return json.dumps(safe_operation, indent=2)
         else:
             return json.dumps(None)
     except Exception as e:
@@ -144,7 +176,25 @@ def load_api_operation_by_path_and_method(path: str, method: str) -> str:
     try:
         operation = openapi_service.find_operation_by_path_and_method(path, method)
         if operation:
-            return json.dumps(operation.model_dump(), indent=2)
+            # Create a safe serializable version
+            safe_operation = {
+                "path": operation.path,
+                "method": operation.method,
+                "spec_id": operation.spec_id,
+                "uri": operation.uri,
+                "operation": {
+                    "operationId": operation.operation.get('operationId', ''),
+                    "summary": operation.operation.get('summary', ''),
+                    "description": operation.operation.get('description', ''),
+                    "tags": operation.operation.get('tags', []),
+                    "parameters": operation.operation.get('parameters', []),
+                    "responses": {k: {"description": v.get('description', '')} if isinstance(v, dict) else str(v) 
+                                for k, v in operation.operation.get('responses', {}).items()},
+                    "requestBody": {"description": operation.operation.get('requestBody', {}).get('description', '')} 
+                                  if operation.operation.get('requestBody') else None
+                }
+            }
+            return json.dumps(safe_operation, indent=2)
         else:
             return json.dumps(None)
     except Exception as e:
@@ -169,7 +219,19 @@ def load_api_schema_by_schemaName(schema_name: str) -> str:
     try:
         schema = openapi_service.find_schema_by_name(schema_name)
         if schema:
-            return json.dumps(schema.model_dump(), indent=2)
+            # Create a safe serializable version
+            safe_schema = {
+                "name": schema.name,
+                "description": schema.description,
+                "uri": schema.uri,
+                "schema_data": {
+                    "type": schema.schema_data.get('type', ''),
+                    "description": schema.schema_data.get('description', ''),
+                    "properties": list(schema.schema_data.get('properties', {}).keys()) if schema.schema_data.get('properties') else [],
+                    "required": schema.schema_data.get('required', [])
+                }
+            }
+            return json.dumps(safe_schema, indent=2)
         else:
             return json.dumps(None)
     except Exception as e:
