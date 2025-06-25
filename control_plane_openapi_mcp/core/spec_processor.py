@@ -24,8 +24,9 @@ class SpecProcessor:
         )
     
     def _extract_operations(self, spec: Dict[str, Any]) -> List[SpecOperationEntry]:
-        """Extract operations from the OpenAPI spec."""
+        """Extract operations from the OpenAPI spec, excluding deprecated ones."""
         operations = []
+        deprecated_count = 0
         paths = spec.get('paths', {})
         
         for path, path_item in paths.items():
@@ -34,6 +35,12 @@ class SpecProcessor:
                 
             for method, operation in path_item.items():
                 if method in ['parameters', '$ref'] or not isinstance(operation, dict):
+                    continue
+                
+                # Skip deprecated operations
+                if operation.get('deprecated', False):
+                    deprecated_count += 1
+                    logger.debug(f"Skipping deprecated operation: {method.upper()} {path} ({operation.get('operationId', 'no-id')})")
                     continue
                 
                 operations.append(SpecOperationEntry(
@@ -45,7 +52,7 @@ class SpecProcessor:
                     tags=operation.get('tags', [])
                 ))
         
-        logger.info(f"Extracted {len(operations)} operations")
+        logger.info(f"Extracted {len(operations)} operations ({deprecated_count} deprecated operations excluded)")
         return operations
     
     def _extract_schemas(self, spec: Dict[str, Any]) -> List[SpecSchemaEntry]:
@@ -65,7 +72,7 @@ class SpecProcessor:
         return schemas
     
     def find_operation_by_id(self, spec: Dict[str, Any], operation_id: str) -> Optional[Dict[str, Any]]:
-        """Find an operation by its operationId."""
+        """Find an operation by its operationId, excluding deprecated operations."""
         paths = spec.get('paths', {})
         
         for path, path_item in paths.items():
@@ -75,7 +82,8 @@ class SpecProcessor:
             for method, operation in path_item.items():
                 if (method not in ['parameters', '$ref'] and 
                     isinstance(operation, dict) and 
-                    operation.get('operationId') == operation_id):
+                    operation.get('operationId') == operation_id and
+                    not operation.get('deprecated', False)):  # Skip deprecated
                     return {
                         'path': path,
                         'method': method.upper(),
@@ -89,7 +97,7 @@ class SpecProcessor:
         path: str, 
         method: str
     ) -> Optional[Dict[str, Any]]:
-        """Find an operation by path and method."""
+        """Find an operation by path and method, excluding deprecated operations."""
         paths = spec.get('paths', {})
         path_item = paths.get(path)
         
@@ -98,6 +106,10 @@ class SpecProcessor:
             
         operation = path_item.get(method.lower())
         if not operation or not isinstance(operation, dict):
+            return None
+        
+        # Skip deprecated operations
+        if operation.get('deprecated', False):
             return None
             
         return {

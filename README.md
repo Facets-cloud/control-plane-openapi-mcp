@@ -5,7 +5,8 @@ MCP server for Facets Control Plane OpenAPI specification. This server fetches t
 ## Features
 
 - **Real-time OpenAPI fetching**: Automatically fetches the latest OpenAPI spec from Facets Control Plane
-- **Comprehensive API catalog**: Provides access to 566+ operations and 500+ schemas
+- **Comprehensive API catalog**: Provides access to 549+ active operations and 500+ schemas
+- **Deprecated operation filtering**: Automatically excludes deprecated operations for cleaner results
 - **Fuzzy search**: Search operations and schemas using natural language queries
 - **Detailed operation info**: Get complete operation details including parameters, responses, and request bodies
 - **Schema exploration**: Access detailed schema information with property lists and descriptions

@@ -40,6 +40,8 @@ def get_api_catalog() -> str:
     """
     Get the complete API catalog containing metadata about all OpenAPI operations and schemas.
     
+    Note: Deprecated operations are automatically excluded from the catalog.
+    
     Returns:
         str: JSON string containing the complete API catalog with operations and schemas.
     """
@@ -60,6 +62,8 @@ def get_api_catalog() -> str:
 def search_api_operations(query: str) -> str:
     """
     Search for operations across the OpenAPI specification using fuzzy matching.
+    
+    Note: Only searches through active (non-deprecated) operations.
     
     Args:
         query (str): Search query to match against operation summaries, descriptions, tags, and operation IDs.
