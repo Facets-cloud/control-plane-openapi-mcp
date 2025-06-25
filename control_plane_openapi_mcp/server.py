@@ -1,6 +1,7 @@
 import logging
 from .config import mcp
 from .tools import *  # Import all tools to register them
+from .prompts import *  # Import all prompts to register them
 
 # Setup logging
 logging.basicConfig(

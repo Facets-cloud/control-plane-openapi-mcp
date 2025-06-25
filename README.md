@@ -7,6 +7,9 @@ This MCP (Model Context Protocol) Server provides seamless integration with the 
 * **Real-time OpenAPI Integration**  
   Automatically fetches and processes the latest OpenAPI specification from Facets Control Plane, ensuring you always have access to current API documentation.
 
+* **Built-in Script Generation Guidance**  
+  Includes an MCP prompt that provides step-by-step guidance for creating production-ready scripts that interact with Control Plane APIs, with best practices for authentication, testing, and error handling.
+
 * **Intelligent Operation Filtering**  
   Automatically excludes deprecated operations (17 filtered out of 566 total) to provide clean, relevant results and improved search performance.
 
@@ -34,6 +37,12 @@ This MCP (Model Context Protocol) Server provides seamless integration with the 
 | `load_api_operation_by_path_and_method` | Load operation details by specifying the exact API path and HTTP method.                                        |
 | `load_api_schema_by_schemaName`         | Load comprehensive schema details including properties, types, and validation requirements.                      |
 | `call_control_plane_api`                | Make authenticated GET requests to the Control Plane API using the provided path.                               |
+
+## Available MCP Prompts
+
+| Prompt Name                               | Description                                                                                                     |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `Control Plane API Script Generation`    | Provides step-by-step guidance for creating production-ready scripts that interact with Control Plane APIs.   |
 
 ## Prerequisites
 
