@@ -49,43 +49,14 @@ For other installation methods, see the [official uv installation guide](https:/
 
 Add the following to your `claude_desktop_config.json`:
 
-### Option 1: Project-specific Configuration (Recommended)
-
-Create `.claude_desktop_config.json` in your project directory:
-
 ```json
 {
   "mcpServers": {
     "control-plane-openapi": {
       "command": "uv",
-      "args": ["run", "control-plane-openapi-mcp"],
-      "cwd": "/Users/anujhydrabadi/work/repos/control-plane-openapi-mcp",
+      "args": ["run", "--directory", "/path/to/your/cloned/control-plane-openapi-mcp", "control-plane-openapi-mcp"],
       "env": {
         "FACETS_OPENAPI_URL": "https://facetsdemo.console.facets.cloud/v3/api-docs",
-        "CACHE_TTL": "3600"
-      }
-    }
-  }
-}
-```
-
-### Option 2: Global Configuration
-
-Create or edit `~/.claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "control-plane-openapi": {
-      "command": "uv",
-      "args": [
-        "run", 
-        "--directory", 
-        "/Users/anujhydrabadi/work/repos/control-plane-openapi-mcp", 
-        "control-plane-openapi-mcp"
-      ],
-      "env": {
-        "FACETS_OPENAPI_URL": "https://your-instance.facets.cloud/v3/api-docs",
         "CACHE_TTL": "3600"
       }
     }

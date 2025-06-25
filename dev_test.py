@@ -163,6 +163,7 @@ def main():
         print("   1. Try: uv run python example.py")
         print("   2. Test MCP: uv run control-plane-openapi-mcp")
         print("   3. Configure Claude Desktop with the MCP server")
+        print("   4. Update claude_desktop_config.json with your project path")
     else:
         print("❌ Some tests failed. Please check the errors above.")
         sys.exit(1)
