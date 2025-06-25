@@ -1,138 +1,244 @@
-# Control Plane OpenAPI MCP
+# Control Plane OpenAPI MCP Server
 
-MCP server for Facets Control Plane OpenAPI specification. This server fetches the OpenAPI 3.0 specification from Facets Control Plane and exposes it through MCP tools for LLM integration.
+This MCP (Model Context Protocol) Server provides seamless integration with the Facets Control Plane API through its OpenAPI specification. It enables AI assistants to understand, explore, and interact with the complete Facets Control Plane API, making infrastructure management and API integration more accessible through natural language interactions.
 
-## Features
+## Key Features
 
-- **Real-time OpenAPI fetching**: Automatically fetches the latest OpenAPI spec from Facets Control Plane
-- **Comprehensive API catalog**: Provides access to 549+ active operations and 500+ schemas
-- **Deprecated operation filtering**: Automatically excludes deprecated operations for cleaner results
-- **Fuzzy search**: Search operations and schemas using natural language queries
-- **Detailed operation info**: Get complete operation details including parameters, responses, and request bodies
-- **Schema exploration**: Access detailed schema information with property lists and descriptions
-- **Caching**: Intelligent caching to minimize API calls and improve performance
+* **Real-time OpenAPI Integration**  
+  Automatically fetches and processes the latest OpenAPI specification from Facets Control Plane, ensuring you always have access to current API documentation.
 
-## Installation
+* **Intelligent Operation Filtering**  
+  Automatically excludes deprecated operations (17 filtered out of 566 total) to provide clean, relevant results and improved search performance.
 
+* **Advanced Fuzzy Search**  
+  Search through 549 active operations and 500+ schemas using natural language queries with intelligent matching across summaries, descriptions, tags, and operation IDs.
+
+* **Comprehensive API Coverage**  
+  Access complete operation details including parameters, request bodies, response schemas, and authentication requirements for all Facets Control Plane endpoints.
+
+* **Smart Caching System**  
+  Intelligent TTL-based caching minimizes API calls while ensuring fresh data, with configurable cache duration for optimal performance.
+
+* **Detailed Schema Exploration**  
+  Explore complex data structures with property listings, type information, and relationship mappings for all API schemas.
+
+## Available MCP Tools
+
+| Tool Name                               | Description                                                                                                       |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `refresh_api_catalog`                   | Refreshes the API catalog by fetching the latest OpenAPI specification from the control plane.                   |
+| `get_api_catalog`                       | Returns complete API catalog overview with all active operations and schemas (deprecated operations excluded).   |
+| `search_api_operations`                 | Search for operations using fuzzy matching across operation IDs, summaries, descriptions, and tags.             |
+| `search_api_schemas`                    | Search for schemas by name and description to find relevant data structures.                                     |
+| `load_api_operation_by_operationId`     | Load detailed operation information by its unique operation ID including parameters and responses.               |
+| `load_api_operation_by_path_and_method` | Load operation details by specifying the exact API path and HTTP method.                                        |
+| `load_api_schema_by_schemaName`         | Load comprehensive schema details including properties, types, and validation requirements.                      |
+
+## Prerequisites
+
+The MCP Server requires [uv](https://github.com/astral-sh/uv) for dependency management and execution.
+
+#### Install `uv` with Homebrew:
 ```bash
-# Clone and install with uv
-git clone <repository-url>
-cd control-plane-openapi-mcp
-uv sync
-
-# Or install directly
-uv add control-plane-openapi-mcp
+brew install uv
 ```
 
-## Usage
+For other installation methods, see the [official uv installation guide](https://docs.astral.sh/uv/getting-started/installation/).
 
-### Running the MCP Server
+## Integration with Claude
 
-```bash
-# Run the server
-uv run control-plane-openapi-mcp
+Add the following to your `claude_desktop_config.json`:
 
-# Or with custom configuration
-FACETS_OPENAPI_URL="https://your-instance.com/v3/api-docs" uv run control-plane-openapi-mcp
+### Option 1: Project-specific Configuration (Recommended)
+
+Create `.claude_desktop_config.json` in your project directory:
+
+```json
+{
+  "mcpServers": {
+    "control-plane-openapi": {
+      "command": "uv",
+      "args": ["run", "control-plane-openapi-mcp"],
+      "cwd": "/Users/anujhydrabadi/work/repos/control-plane-openapi-mcp",
+      "env": {
+        "FACETS_OPENAPI_URL": "https://facetsdemo.console.facets.cloud/v3/api-docs",
+        "CACHE_TTL": "3600"
+      }
+    }
+  }
+}
 ```
 
-### Available Tools
+### Option 2: Global Configuration
 
-1. **`refresh_api_catalog`** - Refresh the API catalog with latest spec
-2. **`get_api_catalog`** - Get complete API catalog with all operations and schemas
-3. **`search_api_operations`** - Search operations using fuzzy matching
-4. **`search_api_schemas`** - Search schemas by name and description
-5. **`load_api_operation_by_operationId`** - Load specific operation by ID
-6. **`load_api_operation_by_path_and_method`** - Load operation by path and HTTP method
-7. **`load_api_schema_by_schemaName`** - Load detailed schema information
+Create or edit `~/.claude_desktop_config.json`:
 
-### Example Queries
-
-```python
-# Search for stack-related operations
-search_api_operations("stacks")
-
-# Get details of a specific operation
-load_api_operation_by_operationId("getStack")
-
-# Load operation by path and method
-load_api_operation_by_path_and_method("/cc-ui/v1/stacks/{stackName}", "GET")
-
-# Find schema information
-search_api_schemas("Stack")
-load_api_schema_by_schemaName("Stack")
+```json
+{
+  "mcpServers": {
+    "control-plane-openapi": {
+      "command": "uv",
+      "args": [
+        "run", 
+        "--directory", 
+        "/Users/anujhydrabadi/work/repos/control-plane-openapi-mcp", 
+        "control-plane-openapi-mcp"
+      ],
+      "env": {
+        "FACETS_OPENAPI_URL": "https://your-instance.facets.cloud/v3/api-docs",
+        "CACHE_TTL": "3600"
+      }
+    }
+  }
+}
 ```
 
-## Configuration
+### Environment Variables
 
-Environment variables:
+- `FACETS_OPENAPI_URL`: URL to fetch OpenAPI specification from (default: Facets demo instance)
+- `CACHE_TTL`: Cache time-to-live in seconds (default: 3600)
 
-- `FACETS_OPENAPI_URL` - OpenAPI specification URL (default: Facets demo instance)
-- `CACHE_TTL` - Cache TTL in seconds (default: 3600)
+## Usage Highlights
+
+- Use `get_api_catalog` to get an overview of all available operations and schemas
+- Use `search_api_operations` and `search_api_schemas` to find relevant endpoints using natural language
+- Use specific load operations to get detailed parameter and response information
+- Leverage the fuzzy search to find operations even with partial or approximate terms
+- All results exclude deprecated operations for cleaner, more relevant responses
 
 ## API Coverage
 
 The server provides access to the complete Facets Control Plane API including:
 
-- **Stack Management**: Create, update, delete, and manage stacks
-- **Cluster Operations**: Deploy, monitor, and manage clusters
-- **Artifact Management**: Handle CI/CD artifacts and routing
-- **User & Access Control**: Manage users, groups, and permissions
+- **Stack Management**: Create, update, delete, and manage infrastructure stacks
+- **Cluster Operations**: Deploy, monitor, and manage Kubernetes clusters  
+- **Artifact Management**: Handle CI/CD artifacts and routing rules
+- **User & Access Control**: Manage users, groups, roles, and permissions
 - **Resource Management**: Handle cloud resources and configurations
-- **Monitoring & Alerts**: Access deployment logs and monitoring data
+- **Monitoring & Alerts**: Access deployment logs, metrics, and monitoring data
+- **Authentication**: OAuth integrations, tokens, and account management
 
-## Architecture
+## Example Prompts
 
-- **`SpecLoader`**: Fetches and processes OpenAPI specifications
-- **`SpecProcessor`**: Extracts operations and schemas from specs
-- **`SearchEngine`**: Provides fuzzy search capabilities
-- **`OpenAPIService`**: Main service coordinating all components
-- **`SimpleCache`**: TTL-based caching for performance
-- **MCP Tools**: Seven tools exposing functionality to LLMs
-
-## Example LLM Prompts
-
-When using with Cursor or other LLM tools, try these prompts:
+When using with Claude, try these example prompts:
 
 ```
 "Show me all stack-related operations in the Facets API"
 "What are the required parameters for creating a new stack?"
 "Find operations related to cluster deployments"
-"Show me the Stack schema structure"
+"Show me the Stack schema structure with all its properties"
 "Generate a TypeScript interface for the Stack model"
 "Create an example API call to get stack information"
+"Find all endpoints that handle artifact routing"
+"What authentication methods are available in the API?"
 ```
 
-## Development
+## Local Development
+
+### Setting Up Development Environment
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd control-plane-openapi-mcp
+   ```
+
+2. **Create virtual environment and install dependencies**:
+   ```bash
+   uv sync
+   ```
+
+3. **Activate the virtual environment**:
+   ```bash
+   source .venv/bin/activate  # On macOS/Linux
+   # or
+   .venv\Scripts\activate     # On Windows
+   ```
+
+### Running Tests
 
 ```bash
-# Install dependencies
-uv sync
+# Run the example script to test functionality
+uv run python example.py
 
-# Test the tools directly
-uv run python -c "from control_plane_openapi_mcp.tools import search_api_operations; print(search_api_operations('stack'))"
+# Test direct tool imports
+uv run python test_final.py
 
-# Run tests (when available)
-uv run pytest
+# Test specific functionality
+uv run python -c "
+from control_plane_openapi_mcp.tools import search_api_operations
+import json
+result = search_api_operations('stack')
+print(f'Found {len(json.loads(result)[\"operations\"])} operations')
+"
 ```
+
+### Testing the MCP Server
+
+```bash
+# Start the MCP server (will wait for stdin input)
+uv run control-plane-openapi-mcp
+
+# Test with custom OpenAPI URL
+FACETS_OPENAPI_URL="https://your-instance.com/v3/api-docs" uv run control-plane-openapi-mcp
+```
+
+### Development Workflow
+
+1. **Make changes** to the source code
+2. **Test locally** using the example scripts
+3. **Verify MCP integration** with Claude Desktop
+4. **Run validation** to ensure no regressions
+5. **Commit changes** with descriptive messages
+
+### Project Structure
+
+```
+control_plane_openapi_mcp/
+├── __init__.py              # Package initialization
+├── config.py                # Configuration and MCP setup
+├── server.py                # Main MCP server entry point
+├── tools.py                 # MCP tool implementations
+└── core/                    # Core functionality
+    ├── models.py            # Pydantic data models
+    ├── spec_loader.py       # OpenAPI spec fetching and processing
+    ├── spec_processor.py    # Operation and schema extraction
+    ├── search.py            # Fuzzy search engine
+    ├── cache.py             # TTL-based caching
+    └── service.py           # Main orchestrating service
+```
+
+---
+
+## Example Usage
+
+For comprehensive examples of API exploration and integration, check out the included scripts:
+
+- **`example.py`**: Demonstrates all available tools with real API data
+- **`test_final.py`**: Validates functionality and shows expected results
+
+These examples show the complete workflow from API discovery to detailed operation analysis.
+
+---
+
+## Architecture
+
+- **`SpecLoader`**: Fetches and processes OpenAPI specifications with JSON reference resolution
+- **`SpecProcessor`**: Extracts operations and schemas while filtering deprecated endpoints  
+- **`SearchEngine`**: Provides fuzzy search capabilities with configurable matching thresholds
+- **`OpenAPIService`**: Main service coordinating all components with intelligent caching
+- **`SimpleCache`**: TTL-based caching for performance optimization
+- **MCP Tools**: Seven specialized tools exposing functionality to AI assistants
 
 ## Comparison with TypeScript Version
 
 This Python implementation provides similar functionality to the TypeScript `@reapi/mcp-openapi` but is:
 
-- **Simpler**: Single API spec, no file system operations
-- **Focused**: Specifically designed for Facets Control Plane
-- **Efficient**: Direct JSON processing with smart caching
-- **Lightweight**: Fewer dependencies and abstractions
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+- **Simpler**: Single API spec focus, no file system operations required
+- **Focused**: Specifically designed for Facets Control Plane integration
+- **Efficient**: Direct JSON processing with smart caching strategies
+- **Lightweight**: Fewer dependencies and cleaner abstractions
 
 ## License
 
-MIT License - see LICENSE file for details.
+This project is licensed under the MIT License. You are free to use, modify, and distribute it under its terms.
