@@ -4,6 +4,7 @@ from typing import Optional
 
 from .config import mcp, OPENAPI_URL, CACHE_TTL, SPEC_ID
 from .core.service import OpenAPIService
+from .utils.client import api_client
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -11,6 +12,14 @@ logger = logging.getLogger(__name__)
 
 # Initialize the OpenAPI service
 openapi_service = OpenAPIService(OPENAPI_URL, SPEC_ID, CACHE_TTL)
+
+# Initialize API client
+try:
+    api_client.initialize()
+    logger.info("API client initialized successfully")
+except Exception as e:
+    logger.warning(f"API client initialization failed: {e}")
+    logger.warning("call_control_plane_api tool will not be available")
 
 
 @mcp.tool()
@@ -243,4 +252,65 @@ def load_api_schema_by_schemaName(schema_name: str) -> str:
         return json.dumps({
             "success": False,
             "error": str(e)
+        })
+
+
+@mcp.tool()
+def call_control_plane_api(path: str) -> str:
+    """
+    Make a GET request to the Facets Control Plane API.
+    
+    Args:
+        path (str): API path to call (e.g., '/cc-ui/v1/stacks/my-stack' or 'cc-ui/v1/stacks')
+    
+    Returns:
+        str: JSON string containing the API response or error information.
+    """
+    try:
+        if not api_client.initialized:
+            return json.dumps({
+                "success": False,
+                "error": "API client not initialized. Check credentials configuration.",
+                "help": "Set CONTROL_PLANE_URL, FACETS_USERNAME, FACETS_TOKEN environment variables or configure ~/.facets/credentials"
+            })
+        
+        # Make the API call
+        response = api_client.get(path)
+        
+        # Handle response
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                return json.dumps({
+                    "success": True,
+                    "status_code": response.status_code,
+                    "data": response_data
+                }, indent=2)
+            except ValueError:
+                # Response is not JSON
+                return json.dumps({
+                    "success": True,
+                    "status_code": response.status_code,
+                    "data": response.text
+                }, indent=2)
+        else:
+            # Handle error responses
+            try:
+                error_data = response.json()
+            except ValueError:
+                error_data = response.text
+            
+            return json.dumps({
+                "success": False,
+                "status_code": response.status_code,
+                "error": error_data,
+                "path": path
+            }, indent=2)
+            
+    except Exception as e:
+        logger.error(f"Failed to call Control Plane API: {e}")
+        return json.dumps({
+            "success": False,
+            "error": str(e),
+            "path": path
         })

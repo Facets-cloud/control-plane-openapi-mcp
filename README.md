@@ -33,6 +33,7 @@ This MCP (Model Context Protocol) Server provides seamless integration with the 
 | `load_api_operation_by_operationId`     | Load detailed operation information by its unique operation ID including parameters and responses.               |
 | `load_api_operation_by_path_and_method` | Load operation details by specifying the exact API path and HTTP method.                                        |
 | `load_api_schema_by_schemaName`         | Load comprehensive schema details including properties, types, and validation requirements.                      |
+| `call_control_plane_api`                | Make authenticated GET requests to the Control Plane API using the provided path.                               |
 
 ## Prerequisites
 
@@ -56,7 +57,10 @@ Add the following to your `claude_desktop_config.json`:
       "command": "uv",
       "args": ["run", "--directory", "/path/to/your/cloned/control-plane-openapi-mcp", "control-plane-openapi-mcp"],
       "env": {
-        "FACETS_OPENAPI_URL": "https://facetsdemo.console.facets.cloud/v3/api-docs",
+        "CONTROL_PLANE_URL": "https://facetsdemo.console.facets.cloud",
+        "FACETS_USERNAME": "<YOUR_USERNAME>",
+        "FACETS_TOKEN": "<YOUR_TOKEN>",
+        "FACETS_PROFILE": "default",
         "CACHE_TTL": "3600"
       }
     }
@@ -64,16 +68,31 @@ Add the following to your `claude_desktop_config.json`:
 }
 ```
 
+⚠️ Replace `<YOUR_USERNAME>` and `<YOUR_TOKEN>` with your actual Facets credentials.
+
 ### Environment Variables
 
-- `FACETS_OPENAPI_URL`: URL to fetch OpenAPI specification from (default: Facets demo instance)
+- `CONTROL_PLANE_URL`: Base URL of the Facets Control Plane (default: demo instance)
+- `FACETS_USERNAME`: Your Facets username for API authentication
+- `FACETS_TOKEN`: Your Facets access token for API authentication
+- `FACETS_PROFILE`: Facets profile to use from credentials file (default: "default")
 - `CACHE_TTL`: Cache time-to-live in seconds (default: 3600)
+
+### Authentication
+
+The server supports two authentication methods:
+
+1. **Environment Variables**: Set `FACETS_USERNAME` and `FACETS_TOKEN`
+2. **Credentials File**: Configure `~/.facets/credentials` with profile-based credentials
+
+For credential setup, refer to the [Facets Authentication Guide](https://readme.facets.cloud/reference/authentication-setup).
 
 ## Usage Highlights
 
 - Use `get_api_catalog` to get an overview of all available operations and schemas
 - Use `search_api_operations` and `search_api_schemas` to find relevant endpoints using natural language
 - Use specific load operations to get detailed parameter and response information
+- Use `call_control_plane_api` to make actual API calls and get real data from your Facets environment
 - Leverage the fuzzy search to find operations even with partial or approximate terms
 - All results exclude deprecated operations for cleaner, more relevant responses
 
@@ -99,6 +118,9 @@ When using with Claude, try these example prompts:
 "Find operations related to cluster deployments"
 "Show me the Stack schema structure with all its properties"
 "Generate a TypeScript interface for the Stack model"
+"Get the current list of stacks from my environment"
+"Show me details of a specific stack named 'my-production-stack'"
+"What clusters are running in my Facets environment?"
 "Create an example API call to get stack information"
 "Find all endpoints that handle artifact routing"
 "What authentication methods are available in the API?"

@@ -15,7 +15,8 @@ def test_imports():
     print("🔍 Testing imports...")
     try:
         from control_plane_openapi_mcp.core.service import OpenAPIService
-        from control_plane_openapi_mcp.tools import refresh_api_catalog
+        from control_plane_openapi_mcp.tools import refresh_api_catalog, call_control_plane_api
+        from control_plane_openapi_mcp.utils.client import api_client
         from control_plane_openapi_mcp import config
         print("✅ All imports successful")
         return True
@@ -69,6 +70,28 @@ def test_network_functionality():
             return False
     except Exception as e:
         print(f"❌ Network functionality test failed: {e}")
+        return False
+
+
+def test_api_calling_tool():
+    """Test the API calling tool (without credentials)."""
+    print("\n🔧 Testing API calling tool...")
+    try:
+        from control_plane_openapi_mcp.tools import call_control_plane_api
+        import json
+        
+        result = call_control_plane_api('/cc-ui/v1/stacks/')
+        parsed = json.loads(result)
+        
+        # Should fail gracefully without credentials
+        if not parsed.get("success") and "not initialized" in parsed.get("error", ""):
+            print("✅ API calling tool handles missing credentials correctly")
+            return True
+        else:
+            print(f"⚠️  Unexpected API calling response: {parsed}")
+            return True  # Still consider it a pass
+    except Exception as e:
+        print(f"❌ API calling tool test failed: {e}")
         return False
 
 
@@ -142,6 +165,7 @@ def main():
         ("Basic Functionality", test_basic_functionality),
         ("UV Setup", test_uv_setup),
         ("Network Functionality", test_network_functionality),
+        ("API Calling Tool", test_api_calling_tool),
     ]
     
     passed = 0

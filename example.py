@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Example usage of the Control Plane OpenAPI MCP tools.
+Example usage of the Control Plane OpenAPI MCP tools including API calling.
 This script demonstrates how to use the tools directly (outside of MCP context).
 """
 
 import json
+import os
 from control_plane_openapi_mcp.tools import (
     refresh_api_catalog,
     get_api_catalog, 
@@ -12,16 +13,30 @@ from control_plane_openapi_mcp.tools import (
     search_api_schemas,
     load_api_operation_by_operationId,
     load_api_operation_by_path_and_method,
-    load_api_schema_by_schemaName
+    load_api_schema_by_schemaName,
+    call_control_plane_api
 )
 
 
 def main():
-    print("🚀 Control Plane OpenAPI MCP Example")
-    print("=" * 50)
+    print("🚀 Control Plane OpenAPI MCP Example (Updated)")
+    print("=" * 55)
+    
+    # Check if credentials are available
+    has_credentials = all([
+        os.getenv('CONTROL_PLANE_URL'),
+        os.getenv('FACETS_USERNAME'),
+        os.getenv('FACETS_TOKEN')
+    ])
+    
+    if not has_credentials:
+        print("⚠️  Note: API calling functionality requires credentials")
+        print("   Set CONTROL_PLANE_URL, FACETS_USERNAME, FACETS_TOKEN")
+        print("   or configure ~/.facets/credentials file")
+        print()
     
     # 1. Refresh the catalog
-    print("\n1. Refreshing API catalog...")
+    print("1. Refreshing API catalog...")
     refresh_result = refresh_api_catalog()
     print(f"   Result: {json.loads(refresh_result)['message']}")
     
@@ -74,8 +89,33 @@ def main():
         print(f"   🛠️  Operation: {deployment_op['operation']['operationId']}")
         print(f"   📍 URI: {deployment_op['uri']}")
     
+    # 8. Test API calling (if credentials available)
+    if has_credentials:
+        print("\n8. Testing API calling functionality...")
+        try:
+            # Try to get stacks list
+            api_result = call_control_plane_api("/cc-ui/v1/stacks/")
+            api_response = json.loads(api_result)
+            
+            if api_response.get("success"):
+                data = api_response.get("data", [])
+                if isinstance(data, list):
+                    print(f"   🎯 API Call Success: Found {len(data)} stacks")
+                else:
+                    print(f"   🎯 API Call Success: Response received")
+            else:
+                print(f"   ⚠️  API Call Failed: {api_response.get('error', 'Unknown error')}")
+                
+        except Exception as e:
+            print(f"   ❌ API Call Error: {e}")
+    else:
+        print("\n8. Skipping API calling test (credentials not available)")
+    
     print("\n✅ Example completed successfully!")
-    print("\n💡 Pro tip: Use these tools in your LLM prompts to get API information!")
+    if has_credentials:
+        print("💡 Pro tip: Use these tools in your LLM prompts to get real API data!")
+    else:
+        print("💡 Pro tip: Add credentials to test the live API calling functionality!")
 
 
 if __name__ == "__main__":
