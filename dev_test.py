@@ -73,6 +73,32 @@ def test_network_functionality():
         return False
 
 
+def test_configuration():
+    """Test configuration loading from different sources."""
+    print("\n🔧 Testing configuration loading...")
+    try:
+        from control_plane_openapi_mcp.config import CONTROL_PLANE_URL, OPENAPI_URL
+        
+        # Test that URLs are properly formatted
+        if CONTROL_PLANE_URL and CONTROL_PLANE_URL.startswith('https://'):
+            print("✅ Control Plane URL properly formatted")
+        else:
+            print(f"❌ Control Plane URL format issue: {CONTROL_PLANE_URL}")
+            return False
+            
+        if OPENAPI_URL and '/v3/api-docs' in OPENAPI_URL:
+            print("✅ OpenAPI URL properly constructed")
+        else:
+            print(f"❌ OpenAPI URL format issue: {OPENAPI_URL}")
+            return False
+            
+        print("✅ Configuration loading test passed")
+        return True
+    except Exception as e:
+        print(f"❌ Configuration test failed: {e}")
+        return False
+
+
 def test_api_calling_tool():
     """Test the API calling tool (without credentials)."""
     print("\n🔧 Testing API calling tool...")
@@ -162,6 +188,7 @@ def main():
     tests = [
         ("Project Structure", test_project_structure),
         ("Package Imports", test_imports),
+        ("Configuration Loading", test_configuration),
         ("Basic Functionality", test_basic_functionality),
         ("UV Setup", test_uv_setup),
         ("Network Functionality", test_network_functionality),

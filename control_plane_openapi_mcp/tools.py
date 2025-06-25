@@ -13,13 +13,15 @@ logger = logging.getLogger(__name__)
 # Initialize the OpenAPI service
 openapi_service = OpenAPIService(OPENAPI_URL, SPEC_ID, CACHE_TTL)
 
-# Initialize API client
+# Initialize API client (optional - only for call_control_plane_api tool)
+api_client_available = False
 try:
     api_client.initialize()
+    api_client_available = True
     logger.info("API client initialized successfully")
 except Exception as e:
-    logger.warning(f"API client initialization failed: {e}")
-    logger.warning("call_control_plane_api tool will not be available")
+    logger.debug(f"API client initialization failed: {e}")
+    logger.info("API client not available - only OpenAPI exploration tools will work")
 
 
 @mcp.tool()
@@ -267,10 +269,10 @@ def call_control_plane_api(path: str) -> str:
         str: JSON string containing the API response or error information.
     """
     try:
-        if not api_client.initialized:
+        if not api_client_available:
             return json.dumps({
                 "success": False,
-                "error": "API client not initialized. Check credentials configuration.",
+                "error": "API client not initialized. Authentication credentials are required for this tool.",
                 "help": "Set CONTROL_PLANE_URL, FACETS_USERNAME, FACETS_TOKEN environment variables or configure ~/.facets/credentials"
             })
         
