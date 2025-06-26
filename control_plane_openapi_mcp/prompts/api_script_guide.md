@@ -82,6 +82,11 @@ Let me test the GET /api/projects endpoint to understand the project data struct
 
 **Note**: Endpoints might use legacy terms like `/api/stacks` or `/api/blueprints` for the same project data.
 
+**Important**: There may not be dedicated endpoints or filter parameters for every possible requirement. Some data filtering or processing may need to happen client-side after retrieving the API response. When exploring APIs:
+- Test GET endpoints to see the actual response structure
+- Understand what data is available in each response
+- Identify if filtering needs to happen in your script logic rather than API parameters
+
 ---
 
 ### 🔹 Step 3: Validate Data Availability
@@ -94,7 +99,13 @@ After testing GET APIs, confirm with the user:
 > 
 > Does this match what you're looking for?"
 
-**Important**: If you cannot find relevant APIs that provide the required data:
+**Important**: If the exact filtering or data structure you need isn't directly available:
+- **Explain what data IS available** from the API responses
+- **Describe what processing would be needed** in the script to achieve the desired result
+- **Ask for clarification** on whether this approach works for the user's needs
+- **Be transparent** about any limitations or additional processing requirements
+
+If you cannot find relevant APIs that provide the required data:
 - **State this clearly**: "I cannot find APIs that provide the data you're looking for"
 - **Do not assume** API structures or invent endpoints
 - **Do not proceed** with script generation
