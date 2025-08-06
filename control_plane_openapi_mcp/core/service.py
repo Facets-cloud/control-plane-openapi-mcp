@@ -170,3 +170,10 @@ class OpenAPIService:
             schema_data=schema_data,
             uri=f"apis://{self.spec_id}/schemas/{schema_name}"
         )
+    
+    def get_components_schemas(self) -> Dict[str, Any]:
+        """Get all schemas from components/schemas."""
+        if not self._spec:
+            self.initialize()
+        
+        return self._spec.get('components', {}).get('schemas', {})

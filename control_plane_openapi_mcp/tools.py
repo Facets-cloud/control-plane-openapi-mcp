@@ -1,10 +1,10 @@
 import json
 import logging
-from typing import Optional
 
 from .config import mcp, OPENAPI_URL, CACHE_TTL, SPEC_ID
 from .core.service import OpenAPIService
 from .utils.client import api_client
+from .utils.schema_extractor import create_safe_operation_output
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -74,7 +74,7 @@ def search_api_operations(query: str) -> str:
                 "operation_id": op.operation.get('operationId', ''),
                 "tags": op.operation.get('tags', [])
             })
-        
+
         return json.dumps({
             "operations": serialized_operations
         }, indent=2)
@@ -110,6 +110,39 @@ def search_api_schemas(query: str) -> str:
         })
 
 
+def _format_operation_response(operation) -> str:
+    """
+    Helper method to format operation response with safe serialization.
+    
+    Args:
+        operation: The operation object to format
+    
+    Returns:
+        str: JSON string containing the formatted operation
+    """
+    if operation:
+        # Get components schemas for matching inline schemas
+        components_schemas = openapi_service.get_components_schemas()
+
+        # Create a safe serializable version with schema names included
+        safe_operation_data = create_safe_operation_output(
+            operation.operation,
+            components_schemas
+        )
+
+        # Build the complete response
+        safe_operation = {
+            "path": operation.path,
+            "method": operation.method,
+            "spec_id": operation.spec_id,
+            "uri": operation.uri,
+            "operation": safe_operation_data
+        }
+        return json.dumps(safe_operation, indent=2)
+    else:
+        return json.dumps(None)
+
+
 @mcp.tool()
 def load_api_operation_by_operationId(operation_id: str) -> str:
     """
@@ -123,28 +156,7 @@ def load_api_operation_by_operationId(operation_id: str) -> str:
     """
     try:
         operation = openapi_service.find_operation_by_id(operation_id)
-        if operation:
-            # Create a safe serializable version
-            safe_operation = {
-                "path": operation.path,
-                "method": operation.method,
-                "spec_id": operation.spec_id,
-                "uri": operation.uri,
-                "operation": {
-                    "operationId": operation.operation.get('operationId', ''),
-                    "summary": operation.operation.get('summary', ''),
-                    "description": operation.operation.get('description', ''),
-                    "tags": operation.operation.get('tags', []),
-                    "parameters": operation.operation.get('parameters', []),
-                    "responses": {k: {"description": v.get('description', '')} if isinstance(v, dict) else str(v) 
-                                for k, v in operation.operation.get('responses', {}).items()},
-                    "requestBody": {"description": operation.operation.get('requestBody', {}).get('description', '')} 
-                                  if operation.operation.get('requestBody') else None
-                }
-            }
-            return json.dumps(safe_operation, indent=2)
-        else:
-            return json.dumps(None)
+        return _format_operation_response(operation)
     except Exception as e:
         logger.error(f"Failed to load operation by ID: {e}")
         return json.dumps({
@@ -167,28 +179,7 @@ def load_api_operation_by_path_and_method(path: str, method: str) -> str:
     """
     try:
         operation = openapi_service.find_operation_by_path_and_method(path, method)
-        if operation:
-            # Create a safe serializable version
-            safe_operation = {
-                "path": operation.path,
-                "method": operation.method,
-                "spec_id": operation.spec_id,
-                "uri": operation.uri,
-                "operation": {
-                    "operationId": operation.operation.get('operationId', ''),
-                    "summary": operation.operation.get('summary', ''),
-                    "description": operation.operation.get('description', ''),
-                    "tags": operation.operation.get('tags', []),
-                    "parameters": operation.operation.get('parameters', []),
-                    "responses": {k: {"description": v.get('description', '')} if isinstance(v, dict) else str(v) 
-                                for k, v in operation.operation.get('responses', {}).items()},
-                    "requestBody": {"description": operation.operation.get('requestBody', {}).get('description', '')} 
-                                  if operation.operation.get('requestBody') else None
-                }
-            }
-            return json.dumps(safe_operation, indent=2)
-        else:
-            return json.dumps(None)
+        return _format_operation_response(operation)
     except Exception as e:
         logger.error(f"Failed to load operation by path and method: {e}")
         return json.dumps({
@@ -219,7 +210,7 @@ def load_api_schema_by_schemaName(schema_name: str) -> str:
                 "schema_data": {
                     "type": schema.schema_data.get('type', ''),
                     "description": schema.schema_data.get('description', ''),
-                    "properties": list(schema.schema_data.get('properties', {}).keys()) if schema.schema_data.get('properties') else [],
+                    "properties": schema.schema_data.get('properties', {}),
                     "required": schema.schema_data.get('required', [])
                 }
             }
@@ -252,10 +243,10 @@ def call_control_plane_api(path: str) -> str:
                 "error": "API client not initialized. Authentication credentials are required for this tool.",
                 "help": "Set CONTROL_PLANE_URL, FACETS_USERNAME, FACETS_TOKEN environment variables or configure ~/.facets/credentials"
             })
-        
+
         # Make the API call
         response = api_client.get(path)
-        
+
         # Handle response
         if response.status_code == 200:
             try:
@@ -278,14 +269,14 @@ def call_control_plane_api(path: str) -> str:
                 error_data = response.json()
             except ValueError:
                 error_data = response.text
-            
+
             return json.dumps({
                 "success": False,
                 "status_code": response.status_code,
                 "error": error_data,
                 "path": path
             }, indent=2)
-            
+
     except Exception as e:
         logger.error(f"Failed to call Control Plane API: {e}")
         return json.dumps({
