@@ -47,29 +47,6 @@ def refresh_api_catalog() -> str:
 
 
 @mcp.tool()
-def get_api_catalog() -> str:
-    """
-    Get the complete API catalog containing metadata about all OpenAPI operations and schemas.
-    
-    Note: Deprecated operations are automatically excluded from the catalog.
-    
-    Returns:
-        str: JSON string containing the complete API catalog with operations and schemas.
-    """
-    try:
-        catalog = openapi_service.get_api_catalog()
-        return json.dumps({
-            "catalog": catalog.model_dump()
-        }, indent=2)
-    except Exception as e:
-        logger.error(f"Failed to get API catalog: {e}")
-        return json.dumps({
-            "success": False,
-            "error": str(e)
-        })
-
-
-@mcp.tool()
 def search_api_operations(query: str) -> str:
     """
     Search for operations across the OpenAPI specification using fuzzy matching.

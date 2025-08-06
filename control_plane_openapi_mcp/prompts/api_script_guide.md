@@ -28,20 +28,39 @@ token: str             # Authentication token
 
 ---
 
-## 📚 Control Plane Terminology
+## 📚 Control Plane Terminology & Architecture
 
-Understanding the terminology used in Control Plane APIs is crucial for effective script development:
+Understanding the terminology and architecture used in Control Plane APIs is crucial for effective script development:
 
 ### Current vs Legacy Terms
 - **Project** (current) == **Blueprint** == **Stack** (legacy names)
 - **Environment** (current) == **Cluster** (legacy name)  
 - **Release** (current) == **Deployment** (legacy name)
 
+### Facets Architecture Concepts
+- **Stacks**: Top-level entities, uniquely identified by their name
+- **Clusters**: Each stack contains multiple clusters
+  - Uniquely identified by cluster ID
+  - Also uniquely identified by the combination of (stack name, cluster name)
+- **API Scoping**: Many APIs are scoped at different levels:
+  - `/{stackName}` - APIs scoped at the stack level
+  - `/{clusterId}` - APIs scoped at the cluster level
+  - Other APIs may exist without this hierarchical scoping
+- **Resources**: Both stacks and clusters have resources
+  - Stack-level resources accessible via stack-scoped `/resources-info` API
+  - Cluster-level resources accessible via cluster-scoped `/resources-info` API
+  - Stack resources contain base configuration in the `content` field with no overrides
+  - This configuration can be overridden at the cluster level
+  - The `content` field for cluster's resources-info API still returns the base config only
+  - There is an `override` field that contains overrides if present
+  - The effective JSON config requires a deep merge of `override` on the base `content` field
+
 ### Important Notes
 - The APIs may use both current and legacy terminology
 - When exploring endpoints, you might encounter both terms for the same concept
 - In your scripts, prefer using the current terminology in variable names and comments
 - Be aware that API responses might contain legacy field names
+- Pay attention to API path structure to understand whether you're working at stack or cluster scope
 
 ---
 
@@ -62,7 +81,7 @@ Key questions to ask:
 
 **Do not assume** - get explicit confirmation of requirements.
 
-**Terminology Note**: When users mention "stacks", "clusters", or "deployments", understand they're referring to "projects", "environments", and "releases" respectively.
+**Terminology Note**: When users mention "stacks", "clusters", or "deployments", understand they're referring to "projects", "environments", and "releases" respectively, and vice versa.
 
 ---
 

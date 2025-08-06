@@ -143,3 +143,5 @@ claude_desktop_logs/
 # Development test outputs
 test_output.json
 *.tmp
+
+.claude/
