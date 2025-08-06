@@ -79,12 +79,6 @@ class OpenAPIService:
             self.cache.set('catalog', self._catalog.model_dump())
             logger.info("Built and cached catalog")
     
-    def get_api_catalog(self) -> SpecCatalogEntry:
-        """Get the API catalog."""
-        if not self._catalog:
-            self.initialize()
-        return self._catalog
-    
     def search_operations(self, query: str) -> List[LoadOperationResult]:
         """Search for operations matching the query."""
         if not self._catalog or not self._spec:

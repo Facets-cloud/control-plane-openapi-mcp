@@ -30,7 +30,6 @@ This MCP (Model Context Protocol) Server provides seamless integration with the 
 | Tool Name                               | Description                                                                                                       |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `refresh_api_catalog`                   | Refreshes the API catalog by fetching the latest OpenAPI specification from the control plane.                   |
-| `get_api_catalog`                       | Returns complete API catalog overview with all active operations and schemas (deprecated operations excluded).   |
 | `search_api_operations`                 | Search for operations using fuzzy matching across operation IDs, summaries, descriptions, and tags.             |
 | `search_api_schemas`                    | Search for schemas by name and description to find relevant data structures.                                     |
 | `load_api_operation_by_operationId`     | Load detailed operation information by its unique operation ID including parameters and responses.               |
@@ -98,7 +97,6 @@ For credential setup, refer to the [Facets Authentication Guide](https://readme.
 
 ## Usage Highlights
 
-- Use `get_api_catalog` to get an overview of all available operations and schemas
 - Use `search_api_operations` and `search_api_schemas` to find relevant endpoints using natural language
 - Use specific load operations to get detailed parameter and response information
 - Use `call_control_plane_api` to make actual API calls and get real data from your Facets environment
