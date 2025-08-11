@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 from .config import mcp, OPENAPI_URL, CACHE_TTL, SPEC_ID
 from .core.service import OpenAPIService
@@ -24,9 +25,58 @@ except Exception as e:
     logger.info("API client not available - only OpenAPI exploration tools will work")
 
 
+@mcp.resource(uri="resource://control_plane_api_knowledge", name="Control Plane API Knowledge Base")
+def call_always_for_instruction() -> str:
+    return FIRST_STEP_get_api_script_guide()
+
+
+@mcp.tool()
+def FIRST_STEP_get_api_script_guide() -> str:
+    """
+    <important>ALWAYS Call this tool first before calling any other tool of this mcp.</important>
+    Loads the API script generation guide that contains comprehensive instructions for creating 
+    scripts that interact with Control Plane APIs.
+
+    Returns:
+        str: A JSON string containing the content of the API script guide.
+    """
+    try:
+        # Get the directory where this file is located
+        current_dir = os.path.dirname(__file__)
+        guide_path = os.path.join(current_dir, "prompts", "api_script_guide.md")
+        
+        # Read the guide content
+        with open(guide_path, 'r', encoding='utf-8') as f:
+            guide_content = f.read()
+        
+        return json.dumps({
+            "success": True,
+            "message": "API script guide loaded successfully.",
+            "instructions": "Inform User: API script guide loaded successfully.",
+            "data": {
+                "api_script_guide.md": guide_content
+            }
+        }, indent=2)
+    
+    except FileNotFoundError:
+        return json.dumps({
+            "success": False,
+            "message": "API script guide file not found.",
+            "error": f"Could not find api_script_guide.md at {guide_path}"
+        }, indent=2)
+    
+    except Exception as e:
+        return json.dumps({
+            "success": False,
+            "message": "Failed to load API script guide.",
+            "error": str(e)
+        }, indent=2)
+
+
 @mcp.tool()
 def refresh_api_catalog() -> str:
     """
+    <important>Make Sure you have Called FIRST_STEP_get_api_script_guide first before this tool.</important>
     Refresh the API catalog by fetching the latest OpenAPI specification.
     
     Returns:
@@ -49,6 +99,7 @@ def refresh_api_catalog() -> str:
 @mcp.tool()
 def search_api_operations(query: str) -> str:
     """
+    <important>Make Sure you have Called FIRST_STEP_get_api_script_guide first before this tool.</important>
     Search for operations across the OpenAPI specification using fuzzy matching.
     
     Note: Only searches through active (non-deprecated) operations.
@@ -89,6 +140,7 @@ def search_api_operations(query: str) -> str:
 @mcp.tool()
 def search_api_schemas(query: str) -> str:
     """
+    <important>Make Sure you have Called FIRST_STEP_get_api_script_guide first before this tool.</important>
     Search for schemas across the OpenAPI specification using fuzzy matching.
     
     Args:
@@ -146,6 +198,7 @@ def _format_operation_response(operation) -> str:
 @mcp.tool()
 def load_api_operation_by_operationId(operation_id: str) -> str:
     """
+    <important>Make Sure you have Called FIRST_STEP_get_api_script_guide first before this tool.</important>
     Load a specific operation by its operationId.
     
     Args:
@@ -168,6 +221,7 @@ def load_api_operation_by_operationId(operation_id: str) -> str:
 @mcp.tool()
 def load_api_operation_by_path_and_method(path: str, method: str) -> str:
     """
+    <important>Make Sure you have Called FIRST_STEP_get_api_script_guide first before this tool.</important>
     Load a specific operation by its path and HTTP method.
     
     Args:
@@ -191,6 +245,7 @@ def load_api_operation_by_path_and_method(path: str, method: str) -> str:
 @mcp.tool()
 def load_api_schema_by_schemaName(schema_name: str) -> str:
     """
+    <important>Make Sure you have Called FIRST_STEP_get_api_script_guide first before this tool.</important>
     Load a specific schema by its name.
     
     Args:
@@ -228,6 +283,7 @@ def load_api_schema_by_schemaName(schema_name: str) -> str:
 @mcp.tool()
 def call_control_plane_api(path: str) -> str:
     """
+    <important>Make Sure you have Called FIRST_STEP_get_api_script_guide first before this tool.</important>
     Make a GET request to the Facets Control Plane API.
     
     Args:
