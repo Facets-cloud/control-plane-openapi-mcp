@@ -29,6 +29,7 @@ This MCP (Model Context Protocol) Server provides seamless integration with the 
 
 | Tool Name                               | Description                                                                                                       |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `FIRST_STEP_get_api_script_guide`       | **🚀 Start here!** Loads comprehensive API script generation guide - call this tool first before using others.  |
 | `refresh_api_catalog`                   | Refreshes the API catalog by fetching the latest OpenAPI specification from the control plane.                   |
 | `search_api_operations`                 | Search for operations using fuzzy matching across operation IDs, summaries, descriptions, and tags.             |
 | `search_api_schemas`                    | Search for schemas by name and description to find relevant data structures.                                     |
@@ -65,7 +66,7 @@ Add the following to your `claude_desktop_config.json`:
       "command": "uv",
       "args": ["run", "--directory", "/path/to/your/cloned/control-plane-openapi-mcp", "control-plane-openapi-mcp"],
       "env": {
-        "CONTROL_PLANE_URL": "https://facetsdemo.console.facets.cloud",
+        "CONTROL_PLANE_URL": "https://<customername>.console.facets.cloud",
         "FACETS_USERNAME": "<YOUR_USERNAME>",
         "FACETS_TOKEN": "<YOUR_TOKEN>",
         "FACETS_PROFILE": "default",
@@ -97,11 +98,10 @@ For credential setup, refer to the [Facets Authentication Guide](https://readme.
 
 ## Usage Highlights
 
-- Use `search_api_operations` and `search_api_schemas` to find relevant endpoints using natural language
-- Use specific load operations to get detailed parameter and response information
-- Use `call_control_plane_api` to make actual API calls and get real data from your Facets environment
-- Leverage the fuzzy search to find operations even with partial or approximate terms
-- All results exclude deprecated operations for cleaner, more relevant responses
+- Uses `search_api_operations` and `search_api_schemas` to find relevant endpoints using natural language
+- Uses specific load operations to get detailed parameter and response information
+- Uses `call_control_plane_api` to make actual API calls and get real data from your Facets environment
+- Leverages the fuzzy search to find operations even with partial or approximate terms
 
 ## API Coverage
 
@@ -120,15 +120,15 @@ The server provides access to the complete Facets Control Plane API including:
 When using with Claude, try these example prompts:
 
 ```
-"Show me all stack-related operations in the Facets API"
-"What are the required parameters for creating a new stack?"
-"Find operations related to cluster deployments"
-"Show me the Stack schema structure with all its properties"
-"Generate a TypeScript interface for the Stack model"
-"Get the current list of stacks from my environment"
-"Show me details of a specific stack named 'my-production-stack'"
-"What clusters are running in my Facets environment?"
-"Create an example API call to get stack information"
+"Show me all project-related operations in the Facets API"
+"What are the required parameters for creating a new project?"
+"Find operations related to environment deployments"
+"Show me the project schema structure with all its properties"
+"Generate a TypeScript interface for the project model"
+"Get the current list of projects from my environment"
+"Show me details of a specific project named 'my-production-project'"
+"What environments are running in my Facets environment?"
+"Create an example API call to get project information"
 "Find all endpoints that handle artifact routing"
 "What authentication methods are available in the API?"
 ```
@@ -154,24 +154,6 @@ When using with Claude, try these example prompts:
    # or
    .venv\Scripts\activate     # On Windows
    ```
-
-### Running Tests
-
-```bash
-# Run the example script to test functionality
-uv run python example.py
-
-# Test direct tool imports
-uv run python test_final.py
-
-# Test specific functionality
-uv run python -c "
-from control_plane_openapi_mcp.tools import search_api_operations
-import json
-result = search_api_operations('stack')
-print(f'Found {len(json.loads(result)[\"operations\"])} operations')
-"
-```
 
 ### Testing the MCP Server
 
@@ -210,17 +192,6 @@ control_plane_openapi_mcp/
 
 ---
 
-## Example Usage
-
-For comprehensive examples of API exploration and integration, check out the included scripts:
-
-- **`example.py`**: Demonstrates all available tools with real API data
-- **`test_final.py`**: Validates functionality and shows expected results
-
-These examples show the complete workflow from API discovery to detailed operation analysis.
-
----
-
 ## Architecture
 
 - **`SpecLoader`**: Fetches and processes OpenAPI specifications with JSON reference resolution
@@ -228,16 +199,7 @@ These examples show the complete workflow from API discovery to detailed operati
 - **`SearchEngine`**: Provides fuzzy search capabilities with configurable matching thresholds
 - **`OpenAPIService`**: Main service coordinating all components with intelligent caching
 - **`SimpleCache`**: TTL-based caching for performance optimization
-- **MCP Tools**: Seven specialized tools exposing functionality to AI assistants
-
-## Comparison with TypeScript Version
-
-This Python implementation provides similar functionality to the TypeScript `@reapi/mcp-openapi` but is:
-
-- **Simpler**: Single API spec focus, no file system operations required
-- **Focused**: Specifically designed for Facets Control Plane integration
-- **Efficient**: Direct JSON processing with smart caching strategies
-- **Lightweight**: Fewer dependencies and cleaner abstractions
+- **MCP Tools**: Specialized tools exposing functionality to AI assistants
 
 ## License
 
