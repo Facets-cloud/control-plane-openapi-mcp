@@ -145,3 +145,6 @@ test_output.json
 *.tmp
 
 .claude/
+
+# Setuptools SCM version file
+*/_version.py
