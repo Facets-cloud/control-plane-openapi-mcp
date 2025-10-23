@@ -1,4 +1,6 @@
 [project]
+urls = { "Homepage" = "https://github.com/Facets-cloud/control-plane-openapi-mcp", "Bug Tracker" = "https://github.com/Facets-cloud/control-plane-openapi-mcp/issues", "Documentation" = "https://github.com/Facets-cloud/control-plane-openapi-mcp#readme" }
+
 name = "control-plane-openapi-mcp"
 description = "MCP server for Facets Control Plane OpenAPI specification"
 dynamic = ["version"]
@@ -44,7 +46,3 @@ local_scheme = "node-and-date"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["control_plane_openapi_mcp*"]
-
-[project.urls]
-"Homepage" = "https://github.com/Facets-cloud/control-plane-openapi-mcp"
-"Bug Tracker" = "https://github.com/Facets-cloud/control-plane-openapi-mcp/issues"
