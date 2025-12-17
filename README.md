@@ -55,9 +55,43 @@ brew install uv
 
 For other installation methods, see the [official uv installation guide](https://docs.astral.sh/uv/getting-started/installation/).
 
-## Integration with Claude
+## Installation
+
+### Option 1: Install from PyPI (Recommended)
+
+The easiest way to install and use the MCP server is directly from [PyPI](https://pypi.org/project/control-plane-openapi-mcp/). This method always uses the latest published version.
 
 Add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "control-plane-openapi": {
+      "command": "uvx",
+      "args": ["control-plane-openapi-mcp"],
+      "env": {
+        "CONTROL_PLANE_URL": "https://<customername>.console.facets.cloud",
+        "FACETS_USERNAME": "<YOUR_USERNAME>",
+        "FACETS_TOKEN": "<YOUR_TOKEN>",
+        "FACETS_PROFILE": "default",
+        "CACHE_TTL": "3600"
+      }
+    }
+  }
+}
+```
+
+### Option 2: Install from Source
+
+If you want to modify the code or contribute to development, clone the repository and run from source.
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Facets-cloud/control-plane-openapi-mcp.git
+   cd control-plane-openapi-mcp
+   ```
+
+2. **Add the following to your `claude_desktop_config.json`**:
 
 ```json
 {
@@ -137,9 +171,9 @@ When using with Claude, try these example prompts:
 
 ### Setting Up Development Environment
 
-1. **Clone the repository**:
+1. **Clone the repository** (if not already done):
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Facets-cloud/control-plane-openapi-mcp.git
    cd control-plane-openapi-mcp
    ```
 
