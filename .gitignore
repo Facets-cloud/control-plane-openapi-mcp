@@ -135,7 +135,6 @@ dmypy.json
 *.swo
 
 # UV
-uv.lock
 
 # Claude Desktop logs (if any)
 claude_desktop_logs/
