@@ -308,16 +308,14 @@ def call_control_plane_api(path: str) -> str:
             try:
                 response_data = response.json()
                 return json.dumps({
-                    "success": True,
-                    "status_code": response.status_code,
-                    "data": response_data
+                    "http_status_code": response.status_code,
+                    "raw_response": response_data
                 }, indent=2)
             except ValueError:
                 # Response is not JSON
                 return json.dumps({
-                    "success": True,
-                    "status_code": response.status_code,
-                    "data": response.text
+                    "http_status_code": response.status_code,
+                    "raw_response": response.text
                 }, indent=2)
         else:
             # Handle error responses
@@ -327,10 +325,8 @@ def call_control_plane_api(path: str) -> str:
                 error_data = response.text
 
             return json.dumps({
-                "success": False,
-                "status_code": response.status_code,
-                "error": error_data,
-                "path": path
+                "http_status_code": response.status_code,
+                "raw_response": error_data
             }, indent=2)
 
     except Exception as e:
