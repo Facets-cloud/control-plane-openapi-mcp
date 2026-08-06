@@ -10,7 +10,7 @@ authors = [
     { name = "Anuj Hydrabadi", email = "anuj.hydrabadi@facets.cloud" },
 ]
 dependencies = [
-    "mcp[cli]",
+    "mcp[cli]>=1.26,<2",
     "requests>=2.31.0",
     "jsonref>=1.1.0",
     "pydantic>=2.0",
