@@ -1,7 +1,8 @@
 import os
 import configparser
 import logging
-from mcp.server.fastmcp import FastMCP
+from importlib.metadata import PackageNotFoundError, version
+from mcp.server.mcpserver import MCPServer
 
 logger = logging.getLogger(__name__)
 
@@ -59,4 +60,9 @@ FACETS_PROFILE = os.getenv('FACETS_PROFILE', 'default')
 OPENAPI_URL = f"{CONTROL_PLANE_URL}/v3/api-docs"
 
 # Initialize MCP server
-mcp = FastMCP("Facets Control Plane OpenAPI")
+try:
+    SERVER_VERSION = version("control-plane-openapi-mcp")
+except PackageNotFoundError:
+    SERVER_VERSION = ""
+
+mcp = MCPServer("Facets Control Plane OpenAPI", version=SERVER_VERSION)
