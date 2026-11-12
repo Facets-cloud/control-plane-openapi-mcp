@@ -14,7 +14,7 @@ source .venv/bin/activate
 uv run control-plane-openapi-mcp
 
 # Run the tests
-uv run pytest tests/
+uv run python -m unittest discover -s tests
 
 # Quick function testing
 uv run python -c "from control_plane_openapi_mcp.tools import search_api_operations; print(search_api_operations('stack'))"
@@ -56,7 +56,7 @@ The system is built around `OpenAPIService` (`core/service.py`) which orchestrat
    - The configuration is a set of module-level constants in `config.py`
 
 ### MCP Integration
-The server exposes 8 tools and 1 resource through FastMCP:
+The server exposes 8 tools and 1 resource through `MCPServer` (the `mcp` 2.x SDK):
 - API exploration tools (search, load operations/schemas)
 - API interaction tool (`call_control_plane_api` for GET requests only)
 - Catalog refresh capability

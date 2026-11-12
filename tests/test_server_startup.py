@@ -37,7 +37,7 @@ class ServerStartupTest(unittest.IsolatedAsyncioTestCase):
 
             result, tools = await asyncio.wait_for(initialize_server(), timeout=15)
 
-        self.assertEqual(result.serverInfo.name, "Facets Control Plane OpenAPI")
+        self.assertEqual(result.server_info.name, "Facets Control Plane OpenAPI")
         self.assertGreater(len(tools.tools), 0)
 
 
